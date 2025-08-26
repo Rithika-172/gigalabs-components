@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GigaLabs - Parallax Career Solutions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            color: #fff;
+        }
+        
+        .parallax-container {
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            perspective: 1px;
+        }
+        
+        .parallax-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .parallax-back {
+            transform: translateZ(-1px) scale(2);
+        }
+        
+        .parallax-base {
+            transform: translateZ(0);
+        }
+        
+        .slides-container {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+        }
+        
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        .slide-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 900px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slide h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .slide p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            max-width: 800px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #1a73e8, #64b5f6);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
+            background: linear-gradient(45deg, #64b5f6, #1a73e8);
+        }
+        
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+            columns: 2;
+            column-gap: 30px;
+        }
+        
+        .features-list li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            break-inside: avoid;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #64b5f6;
+            font-weight: bold;
+        }
+        
+        .slide-indicators {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: #fff;
+            transform: scale(1.4);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .logo {
+            position: fixed;
+            top: 30px;
+            left: 40px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #1a73e8, #64b5f6);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.1s linear;
+        }
+        
+        /* Background images for each slide */
+        .slide-1 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+        }
+        
+        .slide-2 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1579389083078-4e7018379f7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+        }
+        
+        .slide-3 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1351&q=80');
+        }
+        
+        .slide-4 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+        }
+        
+        .slide-5 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1374&q=80');
+        }
+        
+        /* Responsive design */
+        @media (max-width: 900px) {
+            .slide h2 {
+                font-size: 2.5rem;
+            }
+            
+            .slide p {
+                font-size: 1.1rem;
+            }
+            
+            .features-list {
+                columns: 1;
+            }
+            
+            .slide-overlay {
+                padding: 30px 20px;
+                margin: 0 20px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .slide h2 {
+                font-size: 2rem;
+            }
+            
+            .slide p {
+                font-size: 1rem;
+            }
+            
+            .cta-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+            
+            .logo {
+                left: 20px;
+                font-size: 1.5rem;
+            }
+            
+            .slide-indicators {
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress"></div>
+    <div class="logo">GigaLabs</div>
+    
+    <div class="parallax-container">
+        <div class="parallax-layer parallax-back"></div>
+        
+        <div class="slides-container">
+            <!-- Slide 1: Resume Builder -->
+            <div class="slide slide-1 active">
+                <div class="slide-overlay">
+                    <h2>GiGa Resume Builder</h2>
+                    <p>The GiGa Resume Builder is not just another CV maker; it is powered by AI Lab intelligence and designed for the future of work. Best of all, it is completely free to use.</p>
+                    
+                    <ul class="features-list">
+                        <li><strong>AI Skill Recommendation:</strong> Receive smart suggestions on in-demand skills for your desired job roles</li>
+                        <li><strong>Project Recommendations & Builder:</strong> Get project ideas with guided, step-by-step instructions</li>
+                        <li><strong>Generative AI Guidance:</strong> Personalized insights on what employers expect based on your chosen role</li>
+                        <li><strong>ATS-Friendly Templates:</strong> Multiple modern formats crafted for seamless ATS compatibility</li>
+                    </ul>
+                    
+                    <p>This tool stands as a prime example of tech innovation, bringing together career guidance, automation, and design in one powerful platform.</p>
+                    <a href="#" class="cta-button">Build Your Resume</a>
+                </div>
+            </div>
+            
+            <!-- Slide 2: Bring Back Legends -->
+            <div class="slide slide-2">
+                <div class="slide-overlay">
+                    <h2>Bring Back Legends</h2>
+                    <p>Our initiative to help experienced professionals restart their tech careers with updated skills and industry connections.</p>
+                    
+                    <ul class="features-list">
+                        <li><strong>Career Reboot Program:</strong> Specially designed curriculum for experienced professionals returning to tech</li>
+                        <li><strong>Mentorship Network:</strong> Connect with industry veterans for guidance and support</li>
+                        <li><strong>Skill Refreshment:</strong> Latest technologies and frameworks training</li>
+                        <li><strong>Company Partnerships:</strong> Direct connections to employers seeking experienced talent</li>
+                        <li><strong>Confidence Building:</strong> Workshops and sessions to rebuild professional confidence</li>
+                        <li><strong>Community Support:</strong> Join a community of professionals on similar journeys</li>
+                    </ul>
+                    
+                    <p>We believe in second chances and the untapped potential of experienced professionals.</p>
+                    <a href="#" class="cta-button">Join the Program</a>
+                </div>
+            </div>
+            
+            <!-- Slide 3: Job Portal -->
+            <div class="slide slide-3">
+                <div class="slide-overlay">
+                    <h2>GiGa Job Portal</h2>
+                    <p>The GiGa Job Portal is a complete ecosystem for students and professionals aiming for career success.</p>
+                    
+                    <ul class="features-list">
+                        <li><strong>Instant Job Notifications:</strong> Never miss out on new opportunities</li>
+                        <li><strong>AI Mock Interviews:</strong> Experience realistic scenarios with detailed feedback</li>
+                        <li><strong>Skill-Based Assessments:</strong> Tailored questions to evaluate and enhance your readiness</li>
+                        <li><strong>Extensive Listings:</strong> Thousands of curated roles from top companies</li>
+                        <li><strong>Effortless Navigation:</strong> Smart filters to match your profile and career goals</li>
+                        <li><strong>Multi-Platform Integration:</strong> Opportunities from 33+ leading platforms in one place</li>
+                    </ul>
+                    
+                    <p>This portal is more than a job board; it's an outcome of our product innovation approach to career readiness.</p>
+                    <a href="#" class="cta-button">Explore Jobs</a>
+                </div>
+            </div>
+            
+            <!-- Slide 4: LMS -->
+            <div class="slide slide-4">
+                <div class="slide-overlay">
+                    <h2>Giga LMS</h2>
+                    <p>Learning is at the core of every transformation. The Giga LMS is designed to provide interactive, scalable, and flexible learning experiences.</p>
+                    
+                    <ul class="features-list">
+                        <li><strong>Structured Courses:</strong> Industry-ready curriculum designed by experts</li>
+                        <li><strong>Live Sessions:</strong> Interactive learning with industry professionals</li>
+                        <li><strong>Mentorship Integration:</strong> Direct access to mentors for guidance</li>
+                        <li><strong>Project-Based Learning:</strong> Hands-on projects for practical experience</li>
+                        <li><strong>Real-Time Feedback:</strong> Immediate assessment and improvement suggestions</li>
+                        <li><strong>Flexible Pacing:</strong> Learn at your own convenience and speed</li>
+                    </ul>
+                    
+                    <p>Unlike traditional systems, our LMS integrates mentorship, project-based learning, and real-time feedback.</p>
+                    <a href="#" class="cta-button">Start Learning</a>
+                </div>
+            </div>
+            
+            <!-- Slide 5: Pre-Screening Tool -->
+            <div class="slide slide-5">
+                <div class="slide-overlay">
+                    <h2>Giga Prescreener Tool</h2>
+                    <p>The Giga Prescreener Tool is built for individuals looking for a second chance in the tech world.</p>
+                    
+                    <ul class="features-list">
+                        <li><strong>For Graduates (pre-2021):</strong> Rebuild skills and gain industry exposure</li>
+                        <li><strong>For Career Switchers:</strong> Transition from non-tech to tech with guided programs</li>
+                        <li><strong>For Returnees:</strong> Restart confidently with job-specific training and mentorship</li>
+                        <li><strong>For Passionate Learners:</strong> Unlock opportunities with structured paths</li>
+                        <li><strong>Structured Assessment:</strong> Comprehensive evaluation of skills and potential</li>
+                        <li><strong>Personalized Roadmap:</strong> Customized plan for career re-entry</li>
+                    </ul>
+                    
+                    <p>It is not just another assessment — it is a clear representation of product innovation meeting empathy and career transformation.</p>
+                    <a href="#" class="cta-button">Get Prescreened</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide-indicators">
+            <div class="indicator active" data-slide="0"></div>
+            <div class="indicator" data-slide="1"></div>
+            <div class="indicator" data-slide="2"></div>
+            <div class="indicator" data-slide="3"></div>
+            <div class="indicator" data-slide="4"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            const indicators = document.querySelectorAll('.indicator');
+            const progressBar = document.getElementById('progress');
+            let currentSlide = 0;
+            let slideInterval;
+            const slideDuration = 6000; // 6 seconds per slide
+            
+            // Initialize parallax effect
+            function initParallax() {
+                const parallaxContainer = document.querySelector('.parallax-container');
+                
+                parallaxContainer.addEventListener('scroll', function() {
+                    const scrollPosition = parallaxContainer.scrollTop;
+                    const backLayer = document.querySelector('.parallax-back');
+                    
+                    // Adjust background position based on scroll for parallax effect
+                    backLayer.style.transform = `translateZ(-1px) scale(2) translateY(${scrollPosition * 0.5}px)`;
+                });
+            }
+            
+            // Update slide indicators
+            function updateIndicators() {
+                indicators.forEach((indicator, index) => {
+                    if (index === currentSlide) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Go to specific slide
+            function goToSlide(n) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                currentSlide = n;
+                slides[currentSlide].classList.add('active');
+                updateIndicators();
+                resetProgressBar();
+            }
+            
+            // Next slide
+            function nextSlide() {
+                let next = currentSlide + 1;
+                if (next >= slides.length) next = 0;
+                goToSlide(next);
+            }
+            
+            // Auto advance slides
+            function startSlideShow() {
+                // Clear any existing interval to prevent multiple intervals running
+                clearInterval(slideInterval);
+                
+                // Set new interval
+                slideInterval = setInterval(nextSlide, slideDuration);
+            }
+            
+            // Reset progress bar
+            function resetProgressBar() {
+                progressBar.style.width = '0%';
+                let width = 0;
+                const interval = slideDuration / 100;
+                
+                // Clear any existing interval
+                if (window.progressInterval) {
+                    clearInterval(window.progressInterval);
+                }
+                
+                window.progressInterval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(window.progressInterval);
+                    } else {
+                        width++;
+                        progressBar.style.width = width + '%';
+                    }
+                }, interval);
+            }
+            
+            // Add click events to indicators
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', function() {
+                    clearInterval(slideInterval);
+                    goToSlide(index);
+                    startSlideShow();
+                });
+            });
+            
+            // Initialize
+            initParallax();
+            updateIndicators();
+            resetProgressBar();
+            startSlideShow();
+            
+            // Pause slideshow when user hovers over slide
+            slides.forEach(slide => {
+                slide.addEventListener('mouseenter', () => {
+                    clearInterval(slideInterval);
+                    if (window.progressInterval) {
+                        clearInterval(window.progressInterval);
+                    }
+                });
+                
+                slide.addEventListener('mouseleave', () => {
+                    resetProgressBar();
+                    startSlideShow();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

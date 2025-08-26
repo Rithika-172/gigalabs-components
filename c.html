@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GigaLabs – Text-Only 3D Coverflow</title>
+  <style>
+    :root{
+      --card-w: clamp(300px, 60vw, 740px);
+      --gap: 260px;        /* distance between cards left/right */
+      --radius: 22px;
+      --accent: #64b5f6;
+      --bg: #0e1117;
+      --panel: #181c24;
+      --panel-2: #1f2530;
+      --text: #e6e6e6;
+      --muted: #aab2c5;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      min-height:100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+
+    /* Stage */
+    .stage{
+      width:min(1200px, 95vw);
+      height:min(82vh, 720px);
+      position:relative;
+      perspective: 1400px;
+      padding: 24px 0 56px;
+    }
+
+    /* Cards (all absolutely centered; positions set via classes) */
+    .card{
+      position:absolute; top:50%; left:50%;
+      width:var(--card-w); height:100%;
+      transform-style:preserve-3d;
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 6px 20px rgba(0,0,0,.35);
+      overflow:hidden;
+      transition: transform .7s cubic-bezier(.2,.7,.1,1), opacity .5s, filter .5s, box-shadow .5s;
+      opacity:.55;
+      filter:saturate(.8);
+      pointer-events:none;
+    }
+    .card.pos0{
+      transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+      z-index: 50; opacity:1; filter: none; pointer-events:auto;
+      box-shadow: 0 40px 90px rgba(0,0,0,.55), 0 10px 26px rgba(0,0,0,.4);
+    }
+    .card.pos1{
+      transform: translate(calc(-50% + var(--gap)), -50%) rotateY(-20deg) scale(.86);
+      z-index: 40;
+    }
+    .card.pos-1{
+      transform: translate(calc(-50% - var(--gap)), -50%) rotateY(20deg) scale(.86);
+      z-index: 40;
+    }
+    .card.pos2{
+      transform: translate(calc(-50% + calc(var(--gap)*2)), -50%) rotateY(-35deg) scale(.74);
+      z-index: 30; opacity:.45;
+    }
+    .card.pos-2{
+      transform: translate(calc(-50% - calc(var(--gap)*2)), -50%) rotateY(35deg) scale(.74);
+      z-index: 30; opacity:.45;
+    }
+    .card.hidden{ opacity:0; transform: translate(-50%,-50%) scale(.6) rotateY(45deg); z-index:1; }
+
+    /* Card content */
+    .card-inner{
+      height:100%;
+      display:flex; flex-direction:column;
+      padding:28px;
+      gap:16px;
+    }
+    .eyebrow{ color:var(--muted); font-size:.9rem; letter-spacing:.06em; text-transform:uppercase; }
+    h2{ font-size: clamp(1.4rem, 2.4vw, 2.2rem); line-height:1.2; }
+    .lead{ color:#cdd6f4; font-size:1.02rem; }
+    .scroll{
+      margin-top:4px;
+      padding-right:6px;
+      overflow:auto; flex:1; line-height:1.5;
+      scrollbar-width: thin;
+    }
+    .scroll::-webkit-scrollbar{ width:8px; }
+    .scroll::-webkit-scrollbar-thumb{ background:#2b3341; border-radius:8px; }
+    ul{ margin: 10px 0 0 18px; }
+    li{ margin:6px 0; }
+    .cta{
+      align-self:flex-start;
+      background: linear-gradient(45deg, #1a73e8, var(--accent));
+      color:white; border:none; border-radius:999px;
+      padding:12px 22px; font-weight:600; cursor:pointer;
+      box-shadow: 0 6px 18px rgba(26,115,232,.35);
+      transition: transform .2s, box-shadow .2s, filter .2s;
+      text-decoration:none;
+    }
+    .cta:hover{ transform: translateY(-2px); box-shadow:0 10px 24px rgba(26,115,232,.45); }
+
+    /* Controls */
+    .arrows{
+      position:absolute; left:50%; bottom:8px; transform:translateX(-50%);
+      display:flex; gap:16px; align-items:center;
+    }
+    .btn{
+      width:42px; height:42px; border-radius:50%;
+      display:grid; place-items:center;
+      background:#222a36; color:#dfe7ff; border:1px solid #2f3a4c;
+      cursor:pointer; user-select:none;
+      transition: transform .15s, background .2s, border .2s;
+    }
+    .btn:hover{ transform: translateY(-2px); background:#263041; }
+    .dots{ display:flex; gap:8px; align-items:center; padding:0 8px; }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background:#566078; opacity:.6; transition: transform .2s, opacity .2s, background .2s;
+    }
+    .dot.active{ background:var(--accent); opacity:1; transform:scale(1.25); }
+
+    /* Top logo/title (optional) */
+    .brand{
+      position:absolute; top:16px; left:20px; font-weight:700; letter-spacing:.3px;
+      color:#eef3ff;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px){
+      :root{ --gap: 200px; }
+      .stage{ height:min(86vh, 760px); }
+    }
+    @media (max-width: 600px){
+      :root{ --gap: 160px; }
+      .card{ width: clamp(300px, 92vw, 92vw); }
+      .card.pos1,.card.pos-1{ transform: translate(calc(-50% + var(--gap)), -50%) rotateY(-12deg) scale(.9); }
+      .card.pos-1{ transform: translate(calc(-50% - var(--gap)), -50%) rotateY(12deg) scale(.9); }
+      .card.pos2,.card.pos-2{ display:none; }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div class="stage" id="stage">
+    <div class="brand">GigaLabs</div>
+
+    <!-- Cards (TEXT ONLY) -->
+    <article class="card" data-i="0">
+      <div class="card-inner">
+        <div class="eyebrow">Career Tools</div>
+        <h2>GiGa Resume Builder</h2>
+        <p class="lead">AI-powered and completely free. Built for the future of work.</p>
+        <div class="scroll">
+          <ul>
+            <li><strong>AI Skill Recommendation:</strong> Smart suggestions for in-demand skills.</li>
+            <li><strong>Project Recommendations & Builder:</strong> Guided, step-by-step ideas.</li>
+            <li><strong>Generative AI Guidance:</strong> Insights on what employers expect.</li>
+            <li><strong>ATS-Friendly Templates:</strong> Modern formats for seamless ATS passes.</li>
+          </ul>
+          <p style="margin-top:10px">One powerful platform that blends guidance, automation, and design.</p>
+        </div>
+        <a class="cta" href="#">Build Your Resume</a>
+      </div>
+    </article>
+
+    <article class="card" data-i="1">
+      <div class="card-inner">
+        <div class="eyebrow">Initiative</div>
+        <h2>Bring Back Legends</h2>
+        <p class="lead">Helping experienced professionals restart their tech careers.</p>
+        <div class="scroll">
+          <ul>
+            <li><strong>Career Reboot Program:</strong> Purpose-built curriculum.</li>
+            <li><strong>Mentorship Network:</strong> Guidance from industry veterans.</li>
+            <li><strong>Skill Refreshment:</strong> Latest tech & frameworks.</li>
+            <li><strong>Company Partnerships:</strong> Direct employer connections.</li>
+            <li><strong>Confidence Building:</strong> Workshops & sessions.</li>
+            <li><strong>Community Support:</strong> People on the same journey.</li>
+          </ul>
+          <p style="margin-top:10px">We believe in second chances—and untapped potential.</p>
+        </div>
+        <a class="cta" href="#">Join the Program</a>
+      </div>
+    </article>
+
+    <article class="card" data-i="2">
+      <div class="card-inner">
+        <div class="eyebrow">Platform</div>
+        <h2>GiGa Job Portal</h2>
+        <p class="lead">A complete ecosystem for career success.</p>
+        <div class="scroll">
+          <ul>
+            <li><strong>Instant Job Notifications</strong></li>
+            <li><strong>AI Mock Interviews</strong> with feedback</li>
+            <li><strong>Skill-Based Assessments</strong></li>
+            <li><strong>Extensive Listings</strong> from top companies</li>
+            <li><strong>Effortless Navigation</strong> with smart filters</li>
+            <li><strong>Multi-Platform Integration</strong> (33+ sites)</li>
+          </ul>
+          <p style="margin-top:10px">More than a board—an innovation for readiness.</p>
+        </div>
+        <a class="cta" href="#">Explore Jobs</a>
+      </div>
+    </article>
+
+    <article class="card" data-i="3">
+      <div class="card-inner">
+        <div class="eyebrow">Learning</div>
+        <h2>Giga LMS</h2>
+        <p class="lead">Interactive, scalable, and flexible learning experiences.</p>
+        <div class="scroll">
+          <ul>
+            <li><strong>Structured Courses</strong> built by experts</li>
+            <li><strong>Live Sessions</strong> with professionals</li>
+            <li><strong>Mentorship Integration</strong></li>
+            <li><strong>Project-Based Learning</strong></li>
+            <li><strong>Real-Time Feedback</strong></li>
+            <li><strong>Flexible Pacing</strong></li>
+          </ul>
+          <p style="margin-top:10px">Mentorship + projects + feedback in one place.</p>
+        </div>
+        <a class="cta" href="#">Start Learning</a>
+      </div>
+    </article>
+
+    <article class="card" data-i="4">
+      <div class="card-inner">
+        <div class="eyebrow">Assessment</div>
+        <h2>Giga Prescreener Tool</h2>
+        <p class="lead">Built for people seeking a second chance in tech.</p>
+        <div class="scroll">
+          <ul>
+            <li><strong>Pre-2021 Graduates:</strong> Rebuild skills & exposure.</li>
+            <li><strong>Career Switchers:</strong> Guided transition to tech.</li>
+            <li><strong>Returnees:</strong> Job-specific training & mentors.</li>
+            <li><strong>Passionate Learners:</strong> Structured paths.</li>
+            <li><strong>Structured Assessment</strong></li>
+            <li><strong>Personalized Roadmap</strong></li>
+          </ul>
+          <p style="margin-top:10px">Product innovation that meets empathy.</p>
+        </div>
+        <a class="cta" href="#">Get Prescreened</a>
+      </div>
+    </article>
+
+    <!-- Controls -->
+    <div class="arrows">
+      <div class="btn" id="prev" aria-label="Previous">&#10094;</div>
+      <div class="dots" id="dots"></div>
+      <div class="btn" id="next" aria-label="Next">&#10095;</div>
+    </div>
+  </div>
+
+  <script>
+    const cards = Array.from(document.querySelectorAll('.card'));
+    const dotsWrap = document.getElementById('dots');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+
+    let i = 0;
+    let timer;
+
+    // Create dots
+    cards.forEach((_, idx) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (idx === 0 ? ' active' : '');
+      d.addEventListener('click', () => go(idx));
+      dotsWrap.appendChild(d);
+    });
+    const dots = Array.from(document.querySelectorAll('.dot'));
+
+    function layout(){
+      // Apply position classes around active index i : [-2,-1,0,1,2]
+      cards.forEach(c => {
+        c.classList.remove('pos-2','pos-1','pos0','pos1','pos2','hidden');
+      });
+
+      const n = cards.length;
+      const map = (offset) => (i + offset + n) % n;
+
+      // center and nearest neighbors
+      cards[map(0)].classList.add('pos0');
+      cards[map(1)].classList.add('pos1');
+      cards[map(-1)].classList.add('pos-1');
+      if(n > 3){
+        cards[map(2)].classList.add('pos2');
+        cards[map(-2)].classList.add('pos-2');
+      }
+      // hide the rest (if any)
+      for(let k=3; k<=Math.floor(n/2); k++){
+        cards[map(k)].classList.add('hidden');
+        cards[map(-k)].classList.add('hidden');
+      }
+
+      dots.forEach((d, idx)=> d.classList.toggle('active', idx === i));
+    }
+
+    function go(idx){
+      i = (idx + cards.length) % cards.length;
+      layout();
+      resetAutoplay();
+    }
+
+    function next(){ go(i+1); }
+    function prev(){ go(i-1); }
+
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    function resetAutoplay(){
+      clearInterval(timer);
+      timer = setInterval(next, 5000);
+    }
+
+    // Pause on hover
+    const stage = document.getElementById('stage');
+    stage.addEventListener('mouseenter', ()=> clearInterval(timer));
+    stage.addEventListener('mouseleave', resetAutoplay);
+
+    // Init
+    layout();
+    resetAutoplay();
+
+    // Re-layout on resize (keeps transforms smooth on mobile)
+    window.addEventListener('resize', layout);
+  </script>
+</body>
+</html>

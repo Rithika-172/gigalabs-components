@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GigaLabs - Career Solutions Split View</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+      color: #2c3e50;
+      min-height: 100vh;
+    }
+
+    /* Split screen container */
+    .split-screen {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .split {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .split-left {
+      background: rgba(26, 115, 232, 0.1);
+    }
+
+    .split-right {
+      background: rgba(211, 47, 47, 0.1);
+    }
+
+    h3 {
+      font-size: 2rem;
+      color: #1a73e8;
+      margin-bottom: 20px;
+    }
+
+    p, li {
+      font-size: 1rem;
+      color: #2c3e50;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      margin-bottom: 20px;
+      padding-left: 20px;
+    }
+
+    ul li {
+      margin-bottom: 10px;
+    }
+
+    /* Three-grid section */
+    .three-grid {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .three-grid .box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 30px;
+      border-left: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .three-grid .box:first-child {
+      border-left: none;
+    }
+
+    .three-grid h3 {
+      font-size: 1.6rem;
+      color: #1a73e8;
+      margin-bottom: 15px;
+    }
+
+    /* Background colors */
+    .job-portal {
+      background: rgba(26, 115, 232, 0.1); /* blue */
+    }
+
+    .prescreener {
+      background: rgba(255, 193, 7, 0.1); /* amber */
+    }
+
+    .lms {
+      background: rgba(40, 167, 69, 0.1); /* green */
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- First viewport split -->
+  <section class="split-screen">
+    <div class="split split-left">
+      <h3>GiGa Resume Builder</h3>
+      <p>The GiGa Resume Builder is not just another CV maker; it is powered by AI Lab intelligence and designed for the future of work. Best of all, it is completely free to use.</p>
+      <p><strong>Key Features</strong></p>
+      <ul>
+        <li><strong>AI Skill Recommendation:</strong> Receive smart suggestions on in-demand skills for your desired job roles, helping you stay career-ready.</li>
+        <li><strong>Project Recommendations & Builder:</strong> Get project ideas directly from the Gigaversity GitHub repository, complete with guided, step-by-step instructions. After recommendations, you also get the option to instantly start building your own projects, making it hands-on and practical.</li>
+        <li><strong>Generative AI Guidance:</strong> Personalized insights on what employers expect based on your chosen role, ensuring you prepare exactly what recruiters look for.</li>
+        <li><strong>ATS-Friendly Templates:</strong> Multiple modern formats crafted for seamless Applicant Tracking System (ATS) compatibility, ensuring your resume never gets filtered out.</li>
+      </ul>
+      <p>This tool stands as a prime example of tech innovation, bringing together career guidance, automation, and design in one powerful platform — all completely free for the people who struggle to find a good Resume Builder online.</p>
+    </div>
+    <div class="split split-right">
+      <h3>Bring Back Legends</h3>
+      <p>Bring Back Legends is a unique AI-powered experience that lets you have conversations with the world’s greatest minds and personalities. Imagine talking to Einstein about relativity, asking APJ Abdul Kalam for career advice, or exploring creativity with Shakespeare. With cutting-edge AI, we recreate the wisdom, tone, and style of legendary figures, making history come alive at your fingertips.</p>
+      <p><strong>Key Points to Highlight</strong></p>
+      <ul>
+        <li><strong>Talk with Legends:</strong> Interact with AI versions of historical icons, scientists, leaders, and creators.</li>
+        <li><strong>Learn & Explore:</strong> Gain knowledge, inspiration, and insights in a fun and interactive way.</li>
+        <li><strong>Authentic Experience:</strong> Each personality is designed to reflect their unique style, thoughts, and era.</li>
+        <li><strong>For Everyone:</strong> Perfect for students, professionals, history lovers, or anyone curious about the past.</li>
+        <li><strong>Accessible Anywhere:</strong> Easy-to-use web platform with an engaging interface.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Second viewport with three equal sections -->
+  <section class="three-grid">
+    <div class="box job-portal">
+      <h3>GiGa Job Portal</h3>
+      <p>The GiGa Job Portal is a complete ecosystem for students and professionals aiming for career success. With thousands of jobs available across all domains, it brings opportunities from over 33 leading platforms in India—including Indeed, Naukri, Shine, and Apna—all into one place.</p>
+      <p><strong>Key Features of GiGa Job Portal</strong></p>
+      <ul>
+        <li>Instant Job Notifications: Never miss out on new opportunities.</li>
+        <li>AI Mock Interviews: Experience realistic scenarios, detailed feedback, and skill assessment powered by technology innovations.</li>
+        <li>Skill-Based Assessments: Choose your domain or desired job role and get tailored questions designed to evaluate and enhance your readiness.</li>
+        <li>Extensive Listings: Access thousands of curated roles from top companies across multiple platforms.</li>
+        <li>Effortless Navigation: Smart filters to match your profile and career goals.</li>
+      </ul>
+    </div>
+    <div class="box prescreener">
+      <h3>Giga Prescreener Tool</h3>
+      <p>The Giga Prescreener Tool is built for individuals looking for a second chance in the tech world. Many graduates, professionals from non-tech roles, and those with career gaps often struggle to restart their journeys.</p>
+      <ul>
+        <li>For Graduates (pre-2021): Rebuild skills and gain industry exposure.</li>
+        <li>For Career Switchers: Transition from non-tech to tech with guided programs.</li>
+        <li>For Returnees: Restart confidently with job-specific training and mentorship.</li>
+        <li>For Passionate Learners: Unlock opportunities with structured paths.</li>
+      </ul>
+    </div>
+    <div class="box lms">
+      <h3>Giga LMS</h3>
+      <p>Learning is at the core of every transformation. The Giga LMS is designed to provide interactive, scalable, and flexible learning experiences. From structured courses to live sessions, students and professionals can acquire industry-ready skills.</p>
+      <p>Unlike traditional systems, our LMS integrates mentorship, project-based learning, and real-time feedback. It reflects the strength of innovation labs that combine technology with pedagogy to empower learners everywhere.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2023 GigaLabs. All rights reserved. Your Career Revolution Starts Here</p>
+  </footer>
+</body>
+</html>
