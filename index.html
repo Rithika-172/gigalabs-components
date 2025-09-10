@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giga LMS Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Framer Motion (not used directly but kept if needed) -->
+    <script src="https://unpkg.com/framer-motion@latest/dist/framer-motion.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 0.80rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s ease, background-color 0.2s ease;
+            will-change: transform;
+        }
+        .button:active { transform: scale(0.98); }
+        .feature-card { transition: all 0.3s; cursor: pointer; }
+        .feature-card:hover { transform: translateY(-5px); }
+        .feature-card:active { transform: scale(0.98); }
+        .feature-description { font-family: 'Poppins', sans-serif; font-size: 0.9rem; }
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 9999px;
+            transform: scale(0);
+            animation: ripple 600ms linear;
+            background-color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+    </style>
+    <script>
+        // Tailwind config tweaks if needed
+        tailwind.config = { theme: { extend: {} } };
+    </script>
+    <style>
+        /* Prevent any page scrollbars */
+        html, body { height: 100%; overflow: hidden; }
+    </style>
+    <script>
+        // Ripple handler shared for all buttons
+        function addRippleEffect(event) {
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            const diameter = Math.max(rect.width, rect.height);
+            const radius = diameter / 2;
+            const circle = document.createElement('span');
+            circle.classList.add('ripple');
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - rect.left - radius}px`;
+            circle.style.top = `${event.clientY - rect.top - radius}px`;
+            const existing = button.querySelector('.ripple');
+            if (existing) existing.remove();
+            button.appendChild(circle);
+        }
+
+        function attachButtonInteractions(root = document) {
+            const buttons = root.querySelectorAll('.button');
+            buttons.forEach((btn) => {
+                // Ensure only one handler instance
+                btn.removeEventListener('click', addRippleEffect);
+                btn.addEventListener('click', addRippleEffect);
+            });
+        }
+    </script>
+</head>
+<body class="h-screen bg-gray-50 overflow-hidden" style="font-family: Inter, sans-serif;">
+    <div class="flex h-screen">
+        <!-- Left Side - Dynamic Feature Content (no scroll) -->
+        <div class="w-1/2 px-4 bg-white flex items-center justify-center">
+            <div class="w-full max-w-lg" id="feature-content"></div>
+        </div>
+        <!-- Right Side - Giga LMS and Feature Selection (no scroll) -->
+        <div class="w-1/2 bg-gradient-to-b from-white to-blue-50 px-4">
+            <div class="max-w-2xl mx-auto space-y-8">
+                <!-- Giga LMS Section -->
+                <div>
+                    <div class="badge bg-blue-100 text-blue-800 border border-blue-200 hover:bg-blue-100 mb-6">
+                        <i data-lucide="book-open" class="w-4 h-4 mr-2"></i>
+                        Learning Management System
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Giga LMS</h2>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        Learning is at the core of every transformation. The Giga LMS is designed to provide 
+                        interactive, scalable, and flexible learning experiences.
+                    </p>
+                </div>
+                <!-- Interactive Feature Cards -->
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Learning Features</h3>
+                    <div class="grid sm:grid-cols-2 gap-4 mb-8" id="feature-cards"></div>
+                </div>
+                <button class="button bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg w-full">
+                    Start Learning
+                    <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Feature data
+        const features = [
+            { id: 'interactive', icon: 'video', title: 'Interactive Learning', description: 'Engaging video content with hands-on exercises' },
+            { id: 'mentorship', icon: 'users', title: 'Mentorship Programs', description: 'Connect with industry experts and guides' },
+            { id: 'project', icon: 'award', title: 'Project-Based Learning', description: 'Build real-world projects while learning' },
+            { id: 'feedback', icon: 'trending-up', title: 'Real-Time Feedback', description: 'Get instant feedback on your progress' }
+        ];
+
+        // Content data
+        const contentMap = {
+            interactive: {
+                title: 'Interactive Learning Experience',
+                subtitle: 'Engage with multimedia content and hands-on exercises',
+                features: [
+                    { icon: 'play', text: 'HD Video Lectures with Interactive Elements' },
+                    { icon: 'check-circle', text: 'Real-time Code Execution Environment' },
+                    { icon: 'clock', text: 'Self-paced Learning with Progress Tracking' },
+                    { icon: 'target', text: 'Interactive Quizzes and Assessments' }
+                ],
+                stats: [
+                    { label: 'Video Hours', value: '500+', color: 'bg-purple-100 text-purple-700' },
+                    { label: 'Interactive Labs', value: '120+', color: 'bg-green-100 text-green-700' },
+                    { label: 'Completion Rate', value: '94%', color: 'bg-blue-100 text-blue-700' }
+                ],
+                description: 'Our interactive learning platform combines the best of multimedia content with hands-on practice. Students can write code, see results instantly, and learn through doing rather than just watching.'
+            },
+            mentorship: {
+                title: 'Expert Mentorship Program',
+                subtitle: 'Connect with industry professionals for personalized guidance',
+                features: [
+                    { icon: 'users', text: '1-on-1 Sessions with Industry Experts' },
+                    { icon: 'message-square', text: '24/7 Community Support Forum' },
+                    { icon: 'book-open', text: 'Career Guidance and Path Planning' },
+                    { icon: 'award', text: 'Code Review and Best Practice Sessions' }
+                ],
+                stats: [
+                    { label: 'Expert Mentors', value: '50+', color: 'bg-orange-100 text-orange-700' },
+                    { label: 'Success Stories', value: '1200+', color: 'bg-green-100 text-green-700' },
+                    { label: 'Response Time', value: '<2hrs', color: 'bg-blue-100 text-blue-700' }
+                ],
+                description: 'Learn from the best in the industry. Our mentors are working professionals from top tech companies who provide personalized guidance, code reviews, and career advice.'
+            },
+            project: {
+                title: 'Project-Based Learning',
+                subtitle: 'Build real-world applications while mastering concepts',
+                features: [
+                    { icon: 'award', text: 'Industry-Standard Project Templates' },
+                    { icon: 'check-circle', text: 'Step-by-Step Implementation Guide' },
+                    { icon: 'users', text: 'Collaborative Team Projects' },
+                    { icon: 'star', text: 'Portfolio-Ready Applications' }
+                ],
+                stats: [
+                    { label: 'Projects Available', value: '80+', color: 'bg-indigo-100 text-indigo-700' },
+                    { label: 'Team Collaborations', value: '300+', color: 'bg-green-100 text-green-700' },
+                    { label: 'Portfolio Success', value: '98%', color: 'bg-purple-100 text-purple-700' }
+                ],
+                description: 'Theory meets practice with our comprehensive project-based approach. Build everything from web applications to mobile apps, following industry best practices and modern development workflows.'
+            },
+            feedback: {
+                title: 'Real-Time Feedback System',
+                subtitle: 'Get instant insights on your learning progress and performance',
+                features: [
+                    { icon: 'trending-up', text: 'Live Performance Analytics Dashboard' },
+                    { icon: 'zap', text: 'Instant Code Quality Assessment' },
+                    { icon: 'target', text: 'Personalized Learning Recommendations' },
+                    { icon: 'check-circle', text: 'Automated Progress Milestone Tracking' }
+                ],
+                stats: [
+                    { label: 'Response Time', value: '<1sec', color: 'bg-red-100 text-red-700' },
+                    { label: 'Accuracy Rate', value: '99.5%', color: 'bg-green-100 text-green-700' },
+                    { label: 'Learning Boost', value: '67%', color: 'bg-blue-100 text-blue-700' }
+                ],
+                description: 'Never wonder about your progress again. Our AI-powered feedback system provides instant insights, identifies knowledge gaps, and suggests personalized learning paths to accelerate your growth.'
+            }
+        };
+
+        // State management
+        let activeFeature = 'interactive';
+
+        // Function to render feature cards
+        function renderFeatureCards() {
+            const container = document.getElementById('feature-cards');
+            container.innerHTML = '';
+            features.forEach((feature) => {
+                const isActive = activeFeature === feature.id;
+                const card = document.createElement('div');
+                card.className = 'feature-card';
+                card.innerHTML = `
+                    <div class="card cursor-pointer transition-all duration-300 border ${isActive ? 'border-blue-500 bg-blue-50 shadow-lg' : 'border-gray-100 bg-white hover:border-blue-200 hover:shadow-md'}" onclick="setActiveFeature('${feature.id}')">
+                        <div class="p-4 flex items-start gap-3">
+                            <div class="p-2 rounded-lg ${isActive ? 'bg-blue-200' : 'bg-blue-100'}">
+                                <i data-lucide="${feature.icon}" class="w-4 h-4 ${isActive ? 'text-blue-700' : 'text-blue-600'}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1 ${isActive ? 'text-blue-900' : 'text-gray-900'}">${feature.title}</h4>
+                                <p class="text-sm ${isActive ? 'text-blue-700' : 'text-gray-600'}">${feature.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Function to render feature content (Left pane)
+        function renderFeatureContent() {
+            const container = document.getElementById('feature-content');
+            const content = contentMap[activeFeature];
+            container.innerHTML = `
+                <div class="mb-8 w-full">
+                    <div class="card bg-white border border-gray-100 shadow-lg h-full flex flex-col">
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-2">${content.title}</h3>
+                                <p class="text-gray-600">${content.subtitle}</p>
+                            </div>
+                            <div class="flex gap-4">
+                                ${content.stats.map(stat => `
+                                    <div class="badge ${stat.color} border-0 px-3 py-2">
+                                        <div class="text-center">
+                                            <div class="font-bold text-sm">${stat.value}</div>
+                                            <div class="text-xs opacity-80">${stat.label}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="grid gap-3">
+                                ${content.features.map(feature => `
+                                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                        <div class="p-2 bg-white rounded-lg">
+                                            <i data-lucide="${feature.icon}" class="w-4 h-4 text-green-600"></i>
+                                        </div>
+                                        <span class="font-medium text-gray-800">${feature.text}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                                <p class="text-gray-700 leading-relaxed">${content.description}</p>
+                            </div>
+                            <button class="button w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg">
+                                Explore ${content.title}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            attachButtonInteractions(container);
+        }
+
+        // Function to set active feature
+        function setActiveFeature(featureId) {
+            activeFeature = featureId;
+            renderFeatureCards();
+            renderFeatureContent();
+        }
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFeatureCards();
+            renderFeatureContent();
+            attachButtonInteractions(document);
+        });
+    </script>
+</body>
+</html>
+
